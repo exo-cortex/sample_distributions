@@ -1,3 +1,5 @@
+use core::fmt;
+
 use crate::point::Point2D;
 
 pub struct AxisAlignedBoundingBox {
@@ -61,7 +63,7 @@ impl AxisAlignedBoundingBoxBuilder {
 
     pub fn build(self) -> AxisAlignedBoundingBox {
         match self.method {
-            BoxBuilderMethod::CenterWidthHeight | BoxBuilderMethod::Unset => {
+            BoxBuilderMethod::Unset | BoxBuilderMethod::CenterWidthHeight => {
                 let center = self.center.unwrap_or_default();
                 let width = self.width.unwrap_or(1.0);
                 let height = self.height.unwrap_or(1.0);
@@ -79,5 +81,15 @@ impl AxisAlignedBoundingBoxBuilder {
                 max_y: self.max_y.unwrap_or(1.0),
             },
         }
+    }
+}
+
+impl std::fmt::Display for AxisAlignedBoundingBox {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "(x: {}..{}), y: ({}..{})",
+            self.min_x, self.max_x, self.min_y, self.max_y
+        )
     }
 }

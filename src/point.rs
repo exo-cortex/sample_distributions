@@ -1,8 +1,10 @@
+use derive_more::{Add, AddAssign, Mul};
+
 use crate::aabb::AxisAlignedBoundingBox;
 
 use rand::Rng;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone, Copy, Add, AddAssign, Mul)]
 pub struct Point2D {
     pub x: f64,
     pub y: f64,

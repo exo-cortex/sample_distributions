@@ -71,6 +71,15 @@ pub struct RingNormalDistribution {
     radial_sigma: f64,
 }
 
+impl Distribution for RingNormalDistribution {
+    fn probability_at(&self, p: &Point2D) -> f64 {
+        let distance_from_center =
+            ((p.x - self.center.x).powi(2) + (p.y - self.center.y).powi(2)).sqrt();
+
+        (-((distance_from_center - self.radius) / self.radial_sigma).powi(2)).exp()
+    }
+}
+
 pub struct RingNormalDistributionBuilder {
     center: Option<Point2D>,
     radius: Option<f64>,
@@ -97,8 +106,8 @@ impl RingNormalDistributionBuilder {
         self
     }
 
-    pub fn with_radius(mut self, radial_sigma: f64) -> Self {
-        self.radial_sigma = Some(radial_sigma);
+    pub fn with_radius(mut self, radius: f64) -> Self {
+        self.radius = Some(radius);
         self
     }
 
@@ -116,14 +125,5 @@ impl RingNormalDistributionBuilder {
             radius,
             radial_sigma,
         }
-    }
-}
-
-impl Distribution for RingNormalDistribution {
-    fn probability_at(&self, p: &Point2D) -> f64 {
-        let distance_from_center =
-            ((p.x - self.center.x).powi(2) + (p.y - self.center.y).powi(2)).sqrt();
-
-        (-(distance_from_center / self.radial_sigma - self.radius)).exp()
     }
 }

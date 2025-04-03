@@ -15,7 +15,7 @@ impl<'a> SamplingTask<'a> {
         SamplingTask {
             label: label.into(),
             num_sampling_attempts,
-            distribution: distribution,
+            distribution,
         }
     }
 

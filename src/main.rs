@@ -3,55 +3,59 @@ use std::{
     io::{BufWriter, Write},
 };
 
-use crate::{
-    aabb::AxisAlignedBoundingBox,
-    distribution::{Distribution, NormalDistributionBuilder},
-    point::Point2D,
-};
-
-use aabb::AxisAlignedBoundingBoxBuilder;
-use distribution::{sample, RingNormalDistributionBuilder};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
-use sampling_task::SamplingTask;
 
 mod aabb;
 mod distribution;
 mod point;
 mod sampling_task;
 
+use crate::{
+    aabb::{AxisAlignedBoundingBox, AxisAlignedBoundingBoxBuilder},
+    distribution::{sample, NormalDistributionBuilder, RingNormalDistributionBuilder},
+    point::Point2D,
+    sampling_task::SamplingTask,
+};
+
 fn main() {
     let mut rng = SmallRng::seed_from_u64(0);
 
     let sample_area = AxisAlignedBoundingBoxBuilder::new()
-        .with_center_coordinates(2.0, 2.0)
-        .with_width_and_height(1.0, 1.0)
+        .with_center_coordinates(0.0, 0.0)
+        .with_width_and_height(12.0, 12.0)
         .build();
+
+    println!("sampling area: {}", &sample_area);
 
     let normal_distribution = NormalDistributionBuilder::new()
-        .with_center_coordinates(2.0, 2.0)
-        .with_sigma(1.0)
+        .with_center_coordinates(0.0, 0.0)
+        .with_sigma(0.25)
         .build();
 
-    let ring_distribution = RingNormalDistributionBuilder::new()
-        .with_center_coordinates(1.0, 0.5)
+    let ring_distribution_1 = RingNormalDistributionBuilder::new()
+        .with_center_coordinates(0.0, 0.0)
         .with_radius(2.0)
-        .with_radial_sigma(0.5)
+        .with_radial_sigma(0.4)
         .build();
 
-    sample_and_save_tasks(
-        &sample_area,
-        &[
-            SamplingTask::new(&normal_distribution, 1000, "b"),
-            SamplingTask::new(&ring_distribution, 1000, "a"),
-        ],
-        "combined.txt",
-        &mut rng,
-    );
+    let ring_distribution_2 = RingNormalDistributionBuilder::new()
+        .with_center_coordinates(3.5, 3.5)
+        .with_radius(1.0)
+        .with_radial_sigma(0.35)
+        .build();
+
+    let tasks = [
+        SamplingTask::new(&normal_distribution, 200000, "1"),
+        SamplingTask::new(&ring_distribution_1, 20000, "2"),
+        SamplingTask::new(&ring_distribution_2, 150000, "3"),
+    ];
+
+    sample_and_save_tasks(&sample_area, &tasks, "combined.txt", &mut rng);
 }
 
-pub fn sample_and_save_tasks<'a>(
+pub fn sample_and_save_tasks(
     sample_area: &AxisAlignedBoundingBox,
-    tasks: &[SamplingTask<'a>],
+    tasks: &[SamplingTask<'_>],
     filename: &str,
     rng: &mut impl Rng,
 ) {
